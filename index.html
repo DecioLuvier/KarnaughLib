@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="tables-container">
+        <table id="KTruth-Solution"></table>
+        <div>
+            <table id="KMap-Solution"></table>
+            <h1 id="KAlgebra-Solution"></h1>
+            <h1>Variáveis: <input type="number" id="KInput-Solution" value="3"></h1>
+            <button id="KButton-Solution">Girar</button>
+        </div>
+    </div>
+</body>
+
+<script src="scripts.js"></script>
+<script src="KMap.js"></script>
+<script src="KTruth.js"></script>
+
+<script>
+    //Biblioteca Mapa de karnaugh - UFPEL
+    //Décio Luvier Neto
+    //26/05/2024
+    //Baseado em: https://www.youtube.com/watch?v=Bbk3MJV0UyQ (Recomendação)
+
+    const letters = ["A","B","C","D"]
+
+    document.addEventListener("DOMContentLoaded", function() {
+
+        var kInputSolution = document.getElementById('KInput-Solution');
+        let startingVariables = letters.slice(0, kInputSolution.value);
+        
+        let kTruthSolution = new KTruth("KTruth-Solution");
+        let kMapSolution = new KMap("KMap-Solution", true);
+        let kAlgebraSolution = document.getElementById("KAlgebra-Solution");
+
+        kTruthSolution.kAlgebra = kAlgebraSolution;
+        kTruthSolution.kMap = kMapSolution;
+        kTruthSolution.kInput = kInputSolution;
+
+        kTruthSolution.setVariables(startingVariables);
+        kMapSolution.setVariables(startingVariables);
+        kTruthSolution.draw();
+        kTruthSolution.refresh();
+
+        kInputSolution.addEventListener('input', function() {
+            var value = parseInt(kInputSolution.value);
+            if (value < 2) 
+                kInputSolution.value = 2;
+            else if (value > 4) 
+                kInputSolution.value = 4;
+
+            let newVariables = letters.slice(0, kInputSolution.value);
+            kTruthSolution.setVariables(newVariables);
+            kMapSolution.setVariables(newVariables); 
+            kTruthSolution.draw();
+            kTruthSolution.refresh();
+        });
+
+
+        var kButtonSolution = document.getElementById('KButton-Solution');
+        kButtonSolution.addEventListener('click', function() {
+            kMapSolution.flip();
+            kTruthSolution.draw();
+            kTruthSolution.refresh();
+        });
+    });
+</script>
+</html> 

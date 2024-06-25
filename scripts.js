@@ -48,44 +48,53 @@ function hasDuplicates(array) {
     return set.size !== array.length;
 }
 
+
+//Temporario
+//Motivo: Por algum motivo funciona, mas preciso estudar calculo
 function removeDuplicates(arr) {
-    const seen = new Set();
-    const result = [];
-    
-    arr.forEach(item => {
-        const sortedItem = item.slice().sort();
-        const stringified = JSON.stringify(sortedItem);
-        
-        if (!seen.has(stringified)) {
-            seen.add(stringified);
-            result.push(item);
-        }
-    });
-    
-    return result;
+    const uniqueStrings = arr.map(subArr => JSON.stringify(subArr.sort()));
+    const uniqueSet = new Set(uniqueStrings);
+    const uniqueArrays = Array.from(uniqueSet).map(str => JSON.parse(str));
+    return uniqueArrays;
 }
+
 
 function simplifyIslands(islands) {
     let uniqueIndexes = Array.from(new Set(islands.flat()));
-    let largestIslands = [] 
-    
+
+    let largestIslands = [];
     uniqueIndexes.forEach(index => {
         let allIslandsWithIndex = islands.filter(island => island.includes(index));
         let islandsSortedBySize = allIslandsWithIndex.sort((a, b) => b.length - a.length);
-        largestIslands.push(islandsSortedBySize[0]);
+        largestIslands.push(...allIslandsWithIndex.filter(island => island.length === islandsSortedBySize[0].length));
     });
-    
-    let uniqueLargestIslands = removeDuplicates(largestIslands)
-    
-    let finalArrays = [];
-    for (let i = 0; i < uniqueLargestIslands.length; i++) {
-        let remainingArrays = uniqueLargestIslands.slice(0, i).concat(uniqueLargestIslands.slice(i + 1));
-        let remainingFlatArray = remainingArrays.flat();
 
-        if (!uniqueLargestIslands[i].every(element => remainingFlatArray.includes(element))) {
-            finalArrays.push(uniqueLargestIslands[i]);
+    let uniqueLargestIslands = removeDuplicates(largestIslands);
+
+
+    let uniqueSet = new Set(uniqueIndexes);
+
+    function coversAllIndexes(combination) {
+        let combinedIndexes = new Set(combination.flat());
+        return uniqueSet.size === combinedIndexes.size && [...uniqueSet].every(value => combinedIndexes.has(value));
+    }
+
+    let minCombinations = [];
+
+    function generateCombinations(startIndex, currentCombination) {
+        if (coversAllIndexes(currentCombination)) {
+            if (minCombinations.length === 0 || currentCombination.length < minCombinations.length) {
+                minCombinations = [...currentCombination];
+            }
+        }
+        for (let i = startIndex; i < uniqueLargestIslands.length; i++) {
+            generateCombinations(i + 1, [...currentCombination, uniqueLargestIslands[i]]);
         }
     }
 
-    return finalArrays;
+    generateCombinations(0, []);
+
+    return minCombinations;
 }
+
+//
